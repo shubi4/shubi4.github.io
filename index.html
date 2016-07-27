@@ -1,360 +1,382 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>D3: An SVG element tooltip</title>
-		<script type="text/javascript" src="../d3/d3.v3.js"></script>
-		<style type="text/css">
-            body {
-                margin: 0;
-                padding: 0;
-                font-family: Arial, Helvetica, sans-serif;
-                font-size: px;
-                color: rgb(azure);
-            }
 
-            h1, h2, h3 {
-                margin: 0;
-                padding: 0;
-                font-weight: normal;
-                font-family: 'Abel', sans-serif;
-                color: #3DA29B;
-            }
+<head>
 
-            h1 {
-                font-size: 4em;
-            }
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-            h2 {
-                font-size: 2.8em;
-            }
+    <title>2016 US Presidential Elections</title>
 
-            h3 {
-                font-size: 1.6em;
-            }
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
 
-            p, ul, ol {
-                margin-top: 0;
-                line-height: 180%;
-            }
-            
-            rect:hover {
-				fill: orange;
-			}
-            button {
-                padding:5px;
-                background-color:darkgrey;
-                color:ghostwhite;
-                font-weight:bold;
-                font-size: 18px;
-                font-family:Arial,Liberation Sans,DejaVu Sans,sans-serif;
-            }
-            button:focus {
-              color:gray;
-            }
-            
-            .axis path,
-			.axis line {
-				fill: none;
-				stroke: black;
-                stroke-width: 1;
-				shape-rendering: crispEdges;
-			}
-			
-			.axis text {
-				font-family: sans-serif;
-				font-size: 11px;
-			}
-            
-		</style>
-	</head>
-    <body>
-        <div>
-            <h1 style="text-align:center;" > My Fitbit Exercise log</h1>
-            <h3  style="text-align:center;" > Daily and weekly average miles logged</h4>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
+    <!-- Custom CSS -->
+    <link href="css/stylish-portfolio.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <style>
+
+        /* Start Vikram - Maps */
+         .state {
+            fill-opacity: 0.8;
+            fill: beige;
+            stroke: black;
+        }
+        .state.selected {
+            fill-opacity: 1;
+            fill: yellow;
+            stroke: #222;
+        }
+        .state.distinct {
+            fill-opacity: 0.4;
+            fill: yellow;
+            stroke: #222;
+            stroke-width: 3px;
+        }
+        .dem_circle {
+            fill: steelblue;
+            fill-opacity: 0.6;
+            stroke: black;
+        }
+        .rep_circle {
+            fill: red;
+            fill-opacity: 0.5;
+            stroke: black;
+        }
+        .label {
+            font-size: 8pt;
+            text-anchor: middle;
+            stroke: black;
+        }
+        .ptr {
+            stroke: purple;
+            stroke-width: 4;
+        }
+        .state_stat_hdr {
+            stroke: green;
+            fill: green;
+            font-size: 20pt;
+            text-anchor: left;
+        }
+        .state_stat_stats {
+            stroke: green;
+            fill: green;
+            font-size: 15pt;
+            text-anchor: left;
+        }
+        .axis path,
+        .axis line {
+            fill: grey;
+            stroke: grey;
+            shape-rendering: crispEdges;
+            stroke-width: `px;
+        }
+        .x.axis path {
+            stroke: grey;
+        }
+        .y.axis path {
+            stroke: grey;
+        }
+        .state_bar_title {
+            stroke: green;
+            fill: green;
+            font-size: 20pt;
+            text-anchor: left;
+        }
+        .state_bar {
+            fill-opacity: 0.8;
+        }
+
+        /* End: Vikram - Maps */
+
+        /* Start: Loris - Controls */
+        .rect_dem {
+          fill: steelblue;
+        }
+
+        .rect_rep {
+          fill: indianred;
+        }
+
+        .ctrl_text {
+          fill: black;
+          font: 13px sans-serif;
+          text-anchor: end;
+          font-weight: bold;
+           -webkit-touch-callout: none; /* iOS Safari */
+          -webkit-user-select: none;   /* Chrome/Safari/Opera */
+          -khtml-user-select: none;    /* Konqueror */
+          -moz-user-select: none;      /* Firefox */
+          -ms-user-select: none;       /* Internet Explorer/Edge */
+          user-select: none;           /* Non-prefixed version, currently
+                                          not supported by any browser */
+        }
+
+        .ctrl_button{
+         fill: white;
+         stroke:black;
+         stroke-width:1;
+        }
+        .ctrl_button_selected{
+         fill: lightgray;
+         stroke:black;
+         stroke-width:1;
+        }
+        .ctrl_line{
+         stroke:black;
+         stroke-width:1;
+        }
+
+        .sep_line{
+         stroke:black;
+         stroke-width:2;
+        }
+        /* End: Loris - Controls */
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <a id="menu-toggle" href="#" class="btn btn-dark btn-lg toggle"><i class="fa fa-bars"></i></a>
+    <nav id="sidebar-wrapper">
+        <ul class="sidebar-nav">
+            <a id="menu-close" href="#" class="btn btn-light btn-lg pull-right toggle"><i class="fa fa-times"></i></a>
+            <li class="sidebar-brand">
+                <a href="#top" onclick=$("#menu-close").click();>2016 US Elections</a>
+            </li>
+            <li>
+                <a href="#top" onclick=$("#menu-close").click();>Home</a>
+            </li>
+            <li>
+                <a href="#about" onclick=$("#menu-close").click();>The Project</a>
+            </li>
+            <li>
+                <a href="#portfolio" onclick=$("#menu-close").click();>Predict 2016</a>
+            </li>
+            <li>
+                <a href="#footer" onclick=$("#menu-close").click();>Contact</a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Header -->
+    <header id="top" class="header">
+        <div class="text-vertical-center">
+            <h1>2016 US Presidential Elections</h1>
+            <h2>MIDS W209 Final Project - Summmer 2016</h2>
+            <br>
+            <a href="#about" class="btn btn-dark btn-lg">Find Out More</a>
         </div>
-        <div style="text-align:center;" id="svgdiv">
-            <div>
-                <button id="days">June</button>
-                <button id="weeks">Apr-Jun</button>
-                <br/>
-                <br/>
-                <br/>
+    </header>
+
+    <!-- The Project -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2>Explore past results and Create your own predictions for the 2016 Elections!</h2>
+                    <br/>
+                    <p class="lead">For an overview of how the presidential elections work click <a target=_blank href="">here</a>
+                    <br/>
+                    <br/>
+                    Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. 
+                    </p>
+                </div>
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /.container -->
+    </section>
+
+
+    <!-- Portfolio -->
+    <section id="portfolio" class="portfolio">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h2>Predict 2016</h2>
+                    <hr class="small">
+                    <p class="lead">Click on the plus signs next to the different racial groups to change their voting preference. Click on a state to see its statistics. Hover over a state to view tooltips. </p>
+                </div>
+                </div>
+                    <div class="row">
+                        <div class="col-md-8" id="map_div">
+                        </div>
+						
+                        <div class="col-md-2" id="controls_div_1">
+                            <div class="row" id="hispanic" ></div>
+                            <div class="row" id="afro"  ></div>
+						</div>
+						<div class="col-md-2" id="controls_div_2">	
+                            <div class="row" id="college" ></div>
+                            <div class="row" id="no_college" ></div>
+                        </div>
+						
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6" id="state_div">
+                        </div>
+                        <div class="col-md-6" id="state_bar_div">
+                        </div>
+
+                    </div>                    
+                
+                <!-- /.col-lg-10 -->
+            
+            <!-- /.row -->
+        </div>
+        <!-- /.container -->
+    </section>
+
+
+
+    <!-- Footer -->
+    <footer id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1 text-center">
+                    <h2><strong>Presented by</strong></h2>
+                    <br/>
+                    <br/>
+                </div>
+            </div>
+            <div class="row tpad">
+                <div class="col-md-3 col-md-offset-1 text-center">
+                    <h4><strong>Loris D'Acunto</strong>
+                    </h4>    
+                    <ul class="list-unstyled">
+                        <li><i class="fa fa-envelope-o fa-fw"></i> <a href="mailto:name@example.com">name@example.com</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-3 col-md-offset-1 text-center">
+                    <h4><strong>Vikram Hegde</strong>
+                    </h4>    
+                    <ul class="list-unstyled">
+                        <li><i class="fa fa-envelope-o fa-fw"></i> <a href="mailto:name@example.com">name@example.com</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-3 col-md-offset-1 text-center">
+                    <h4><strong>Subhashini R</strong>
+                    </h4>    
+                    <ul class="list-unstyled">
+                        <li><i class="fa fa-envelope-o fa-fw"></i> <a href="mailto:name@example.com">name@example.com</a>
+                        </li>
+                    </ul>
+                </div>                
+                
             </div>
         </div>
-		<script type="text/javascript">
+        <a id="to-top" href="#top" class="btn btn-dark btn-lg"><i class="fa fa-chevron-up fa-fw fa-1x"></i></a>
+    </footer>
 
-			//Width and height
-            var margin = {top: 50, right: 0, bottom: 60, left: 50},
-            w = 600 - margin.left - margin.right,
-            h = 270 - margin.top - margin.bottom;
-			
-			var dataset_days = [
-             {key:"Jun 1", value:2.96}, {key:"Jun 2", value:1.58}, {key:"Jun 3", value:2.38},
-             {key:"Jun 4", value:2.07}, {key:"Jun 5", value:1.67}, {key:"Jun 6", value:2.09},
-             {key:"Jun 7", value:1.55}, {key:"Jun 8", value:1.89}, {key:"Jun 9", value:3.03},
-             {key:"Jun 10", value:3.03}, {key:"Jun 11", value:2.00}, {key:"Jun 12", value:3.08},
-             {key:"Jun 13", value:2.21}, {key:"Jun 14", value:1.56}, {key:"Jun 15", value:1.97},
-             {key:"Jun 16", value:0.07}, {key:"Jun 17", value:2.67}, {key:"Jun 18", value:7.57},
-             {key:"Jun 19", value:3.83}, {key:"Jun 20", value:2.51}, {key:"Jun 21", value:2.93},
-             {key:"Jun 22", value:0.47}, {key:"Jun 23", value:0.00}, {key:"Jun 24", value:3.66},
-             {key:"Jun 25", value:3.41}, {key:"Jun 26", value:1.85}, {key:"Jun 27", value:2.42},
-             {key:"Jun 28", value:1.93}, {key:"Jun 29", value:3.18}, {key:"Jun 30", value:0.33}
-                ]
-                     
-            
-            var dataset_weeks = [
-                {key: "Apr 17-23", value: 1.04},
-                {key: "Apr 24-30", value: 2.04},
-                {key: "May 1-7", value: 3.87},
-                {key: "May 8-14", value: 3.14},
-                {key: "May 15-21", value: 2.81},
-                {key: "May 22-28", value: 2.28},
-                {key: "May 29- Jun 4", value: 2.43},
-                {key: "Jun 5-11", value: 2.10},
-                {key: "Jun 12-18", value: 1.99},
-                {key: "Jun 26- July 2", value: 3.40}
-                ]
+    <!-- jQuery -->
+    <script src="js/jquery.js"></script>
 
-            var dataset = dataset_weeks
-            
-			var xScale = d3.scale.ordinal()
-							.domain(d3.range(dataset.length))
-							.rangeRoundBands([margin.left,w], 0.05);
-
-			var yScale = d3.scale.linear()
-							.domain([0, d3.max(dataset, function(d) { return d.value; })])
-							.range([h,0]);
-            
-  			
-            var colorScale = d3.scale.linear()
-							.domain([0, d3.max(dataset, function(d) { return d.value; })])
-							.range([100, 255]);
-            
-            //Define key function, to be used when binding data
-			var key = function(d) {
-				return d.key;
-			};
-            
-			//Define X axis
-			var xAxis = d3.svg.axis()
-							  .scale(xScale)
-							  .orient("bottom")
-                              .tickFormat(function(d) { return dataset[d].key; })
-                              .ticks(5)
-                              
-
-            /*var yAxis = d3.svg.axis()
-                            .scale(yScale)
-                            .orient("left")
-                            .ticks(5)
-                            .tickFormat(function(d) { return dataset[d].value; })*/
-            
-            var svg = d3.select("#svgdiv")
-                        .append("svg")
-                            .attr("width", w + margin.left + margin.right)
-                            .attr("height", h + margin.top + margin.bottom)
-            
-			//Create bars
-			svg.selectAll("rect")
-               .data(dataset, key)
-               .enter()
-               .append("rect")
-               .attr("x", function(d, i) {
-                    return xScale(i);
-               })
-               .attr("y", function(d) {
-                    return yScale(d.value);
-               })
-               .attr("width", xScale.rangeBand())
-               .attr("height", function(d) {
-                    return h - yScale(d.value);
-               })
-               .attr("fill", function(d) {
-                    var c = Math.round(colorScale(d.value))
-                    return "rgb(0," + c + ",0)";
-               })
-                .on("mouseover", function(d) {
-
-                        //Get this bar's x/y values, then augment for the tooltip
-                        var xPosition = parseFloat(d3.select(this).attr("x")) + xScale.rangeBand() / 2;
-                        var yPosition = parseFloat(d3.select(this).attr("y")) + 14;
-
-                        //Create the tooltip label
-                        svg.append("text")
-                           .attr("id", "tooltip")
-                           .attr("x", xPosition)
-                           .attr("y", yPosition)
-                           .attr("text-anchor", "middle")
-                           .attr("font-family", "sans-serif")
-                           .attr("font-size", "11px")
-                           .attr("font-weight", "bold")
-                           .attr("fill", "black")
-                           .text(d.value);
-
-                   })
-                   .on("mouseout", function() {
-
-                        //Remove the tooltip
-                        d3.select("#tooltip").remove();
-
-                   })
-
-            //Create X axis
-			svg.append("g")
-				.attr("class", "x axis")
-				.attr("transform", "translate(0," + h + ")")
-				.call(xAxis)
-                .selectAll("text")  
-                .style("text-anchor", "end")
-                .attr("dx", "-.8em")
-                .attr("dy", ".15em")
-                .attr("transform", "rotate(-65)" );
-         	
-            
-			//Create Y axis
-			/*svg.append("g")
-				.attr("class", "y axis")
-                .attr("transform", "translate(" + margin.left + ",0)")
-				.call(yAxis);*/
-            
-            // Add the text label for the Y axis
-            /*svg.append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 0 - margin.left)
-                .attr("x",0 - (h / 2))
-                .attr("dy", "1em")
-                .style("text-anchor", "middle")
-                .text("Value");*/
-            
-            //On click, update with new data			
-			d3.selectAll("button")
-				.on("click", function() {
-
-                    var buttonId = d3.select(this).attr("id");
-                    
-                    if (buttonId == "days") {
-                        var dataset = dataset_days;
-                    }
-                    else if (buttonId == "weeks") {
-                        var dataset = dataset_weeks;
-                    }
-
-                    var xScale = d3.scale.ordinal()
-                                    .domain(d3.range(dataset.length))
-                                    .rangeRoundBands([margin.left,w], 0.05);
-
-                    var yScale = d3.scale.linear()
-                                    .domain([0, d3.max(dataset, function(d) { return d.value; })])
-                                    .range([h,0]);
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+    
+    <!-- D3.js -->
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <script src="http://d3js.org/queue.v1.min.js"></script>
 
 
-                    var colorScale = d3.scale.linear()
-                                    .domain([0, d3.max(dataset, function(d) { return d.value; })])
-                                    .range([100, 255]);
-            
-        
-                    //Define X axis
-                    var xAxis = d3.svg.axis()
-                                      .scale(xScale)
-                                      .orient("bottom")
-                                      .ticks(5)
-                                      .tickFormat(function(d) { return dataset[d].key; })
+    <!-- Code: us maps creation -->
+    <script src="js/usmap.js"></script>
 
-                    d3.select(".axis").remove()
-                    //Select…
-					var bars = svg.selectAll("rect")
-						.data(dataset);
-					
-					//Enter…
-					bars.enter()
-						.append("rect")
-                          .attr("x", function(d, i) {
-                                return w;
-                           })
-                           .attr("y", function(d) {
-                                return yScale(d.value);
-                           })
-                           .attr("width", xScale.rangeBand())
-                           .attr("height", function(d) {
-                                return h - yScale(d.value);
-                           })
-                           .attr("fill", function(d) {
-                                var c = Math.round(colorScale(d.value))
-                                return "rgb(0," + c + ",0)";
-                           })
-                    
-					//Update…
-					bars.transition()
-						.duration(500)
-                          .attr("x", function(d, i) {
-                                return xScale(i);
-                           })
-                           .attr("y", function(d) {
-                                return yScale(d.value);
-                           })
-                           .attr("width", xScale.rangeBand())
-                           .attr("height", function(d) {
-                                return h - yScale(d.value);
-                           })
-                           .attr("fill", function(d) {
-                                var c = Math.round(colorScale(d.value))
-                                return "rgb(0," + c + ",0)";
-                           })
+    <!-- Code: Race controls creation -->
+    <script src="js/control_race.js"></script>
 
-					//Exit…
-					bars.exit()
-						.transition()
-						.duration(500)
-						.attr("x", -xScale.rangeBand())
-						.remove();
-                
-           //Create X axis
-			svg.append("g")
-				.attr("class", "x axis")
-				.attr("transform", "translate(0," + h + ")")
-				.call(xAxis)
-                .selectAll("text")  
-                .style("text-anchor", "end")
-                .attr("dx", "-.8em")
-                .attr("dy", ".15em")
-                .attr("transform", "rotate(-65)" );
-                
-                    bars.on("mouseover", function(d) {
+    <!-- Custom Theme JavaScript -->
+    <script>
+    // Closes the sidebar menu
+    $("#menu-close").click(function(e) {
+        e.preventDefault();
+        $("#sidebar-wrapper").toggleClass("active");
+    });
+    // Opens the sidebar menu
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#sidebar-wrapper").toggleClass("active");
+    });
+    // Scrolls to the selected menu item on the page
+    $(function() {
+        $('a[href*=#]:not([href=#],[data-toggle],[data-target],[data-slide])').click(function() {
+            if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') || location.hostname == this.hostname) {
+                var target = $(this.hash);
+                target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
+                if (target.length) {
+                    $('html,body').animate({
+                        scrollTop: target.offset().top
+                    }, 1000);
+                    return false;
+                }
+            }
+        });
+    });
+    //#to-top button appears after scrolling
+    var fixed = false;
+    $(document).scroll(function() {
+        if ($(this).scrollTop() > 250) {
+            if (!fixed) {
+                fixed = true;
+                // $('#to-top').css({position:'fixed', display:'block'});
+                $('#to-top').show("slow", function() {
+                    $('#to-top').css({
+                        position: 'fixed',
+                        display: 'block'
+                    });
+                });
+            }
+        } else {
+            if (fixed) {
+                fixed = false;
+                $('#to-top').hide("slow", function() {
+                    $('#to-top').css({
+                        display: 'none'
+                    });
+                });
+            }
+        }
+    });
+    // Disable Google Maps scrolling
+    // See http://stackoverflow.com/a/25904582/1607849
+    // Disable scroll zooming and bind back the click event
+    var onMapMouseleaveHandler = function(event) {
+        var that = $(this);
+        that.on('click', onMapClickHandler);
+        that.off('mouseleave', onMapMouseleaveHandler);
+        that.find('iframe').css("pointer-events", "none");
+    }
+    var onMapClickHandler = function(event) {
+            var that = $(this);
+            // Disable the click handler until the user leaves the map area
+            that.off('click', onMapClickHandler);
+            // Enable scrolling zoom
+            that.find('iframe').css("pointer-events", "auto");
+            // Handle the mouse leave event
+            that.on('mouseleave', onMapMouseleaveHandler);
+        }
+        // Enable map zooming with mouse scroll when the user clicks the map
+    $('.map').on('click', onMapClickHandler);
+    </script>
 
-                        //Get this bar's x/y values, then augment for the tooltip
-                        var xPosition = parseFloat(d3.select(this).attr("x")) + xScale.rangeBand() / 2;
-                        var yPosition = parseFloat(d3.select(this).attr("y")) + 14;
+</body>
 
-                        //Create the tooltip label
-                        svg.append("text")
-                           .attr("id", "tooltip")
-                           .attr("x", xPosition)
-                           .attr("y", yPosition)
-                           .attr("text-anchor", "middle")
-                           .attr("font-family", "sans-serif")
-                           .attr("font-size", "11px")
-                           .attr("font-weight", "bold")
-                           .attr("fill", "black")
-                           .text(d.value);
-
-                   })
-                   .on("mouseout", function() {
-
-                        //Remove the tooltip
-                        d3.select("#tooltip").remove();
-
-                   })
-
-				});                
-                
-			
-		</script>
-	</body>
 </html>

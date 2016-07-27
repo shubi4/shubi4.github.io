@@ -1,0 +1,7 @@
+{"type":"FeatureCollection","features":[
+{"type":"Feature","id":"10","geometry":{"type":"LineString","coordinates":[[-74.450000,37.607164],[-76,38.4]]},"properties":{"name":"Maryland", "abbrev":"MD"}},
+{"type":"Feature","id":"24","geometry":{"type":"LineString","coordinates":[[-75.500396,38.9], [-73.8,38.45]]},"properties":{"name":"Delaware", "abbrev":"DE"}},
+{"type":"Feature","id":"25","geometry":{"type":"LineString","coordinates":[[-72.003628,42.301831],[-69.4,42.35]]},"properties":{"name":"Massachusetts", "abbrev":"MA"}},
+{"type":"Feature","id":"34","geometry":{"type":"LineString","coordinates":[[-73.708055,39.5],[-75,39.6]]},"properties":{"name":"New Jersey", "abbrev":"NJ"}},
+{"type":"Feature","id":"44","geometry":{"type":"LineString","coordinates":[[-71.628902,41.73318],[-71,41.2]]},"properties":{"name":"Rhode Island", "abbrev":"RI"}}
+]}
